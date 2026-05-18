@@ -1,24 +1,69 @@
-from app.models.books_data import books_db
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.books_data import Book
 
 
 class BookRepository:
 
-    async def get_all_books(self):
-        return books_db
+    async def get_books(
+        self,
+        db: AsyncSession,
+        limit: int,
+        offset: int
+    ):
 
-    async def get_book_by_id(self, book_id):
-        for book in books_db:
-            if book["id"] == book_id:
-                return book
-        return None
+        query = (
+            select(Book)
+            .limit(limit)
+            .offset(offset)
+        )
 
-    async def add_book(self, book_data):
-        books_db.append(book_data)
-        return book_data
+        result = await db.execute(query)
 
-    async def delete_book(self, book_id):
-        for book in books_db:
-            if book["id"] == book_id:
-                books_db.remove(book)
-                return True
-        return False
+        return result.scalars().all()
+
+    async def get_book_by_id(
+        self,
+        db: AsyncSession,
+        book_id
+    ):
+
+        query = select(Book).where(Book.id == book_id)
+
+        result = await db.execute(query)
+
+        return result.scalar_one_or_none()
+
+    async def create_book(
+        self,
+        db: AsyncSession,
+        book_data
+    ):
+
+        book = Book(**book_data.model_dump())
+
+        db.add(book)
+
+        await db.commit()
+
+        await db.refresh(book)
+
+        return book
+
+    async def delete_book(
+        self,
+        db: AsyncSession,
+        book_id
+    ):
+
+        book = await self.get_book_by_id(db, book_id)
+
+        if not book:
+            return False
+
+        await db.delete(book)
+
+        await db.commit()
+
+        return True

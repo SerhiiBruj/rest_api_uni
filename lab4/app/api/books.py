@@ -1,15 +1,9 @@
-from uuid import UUID
-
 from fastapi import (
     APIRouter,
-    Depends,
     HTTPException,
-    status
+    status,
+    Query
 )
-
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.database import get_db
 
 from app.schemas.book import (
     BookCreate,
@@ -32,13 +26,11 @@ service = BookService()
     response_model=list[BookResponse]
 )
 async def get_books(
-    limit: int = 10,
-    offset: int = 0,
-    db: AsyncSession = Depends(get_db)
+    limit: int = Query(default=10, le=100),
+    offset: int = 0
 ):
 
     return await service.get_books(
-        db,
         limit,
         offset
     )
@@ -48,15 +40,9 @@ async def get_books(
     "/{book_id}",
     response_model=BookResponse
 )
-async def get_book(
-    book_id: UUID,
-    db: AsyncSession = Depends(get_db)
-):
+async def get_book(book_id: str):
 
-    book = await service.get_book(
-        db,
-        book_id
-    )
+    book = await service.get_book(book_id)
 
     if not book:
         raise HTTPException(
@@ -72,29 +58,21 @@ async def get_book(
     response_model=BookResponse,
     status_code=status.HTTP_201_CREATED
 )
-async def create_book(
-    book: BookCreate,
-    db: AsyncSession = Depends(get_db)
-):
+async def create_book(book: BookCreate):
 
-    return await service.create_book(
-        db,
-        book
-    )
+    return await service.create_book(book)
 
 
 @router.delete(
     "/{book_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def delete_book(
-    book_id: UUID,
-    db: AsyncSession = Depends(get_db)
-):
+async def delete_book(book_id: str):
 
-    await service.delete_book(
-        db,
-        book_id
-    )
+    deleted = await service.delete_book(book_id)
 
-    return
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Book not found"
+        )

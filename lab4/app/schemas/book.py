@@ -1,7 +1,9 @@
-from pydantic import BaseModel, Field
-from typing import Optional
-from uuid import UUID
 from enum import Enum
+from typing import Optional
+
+from pydantic import BaseModel, Field
+
+from pydantic_mongo import PydanticObjectId
 
 
 class BookStatus(str, Enum):
@@ -31,7 +33,7 @@ class BookCreate(BaseModel):
 
 class BookResponse(BookCreate):
 
-    id: UUID
+    id: PydanticObjectId
 
     class Config:
-        from_attributes = True
+        arbitrary_types_allowed = True
