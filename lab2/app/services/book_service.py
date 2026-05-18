@@ -1,7 +1,8 @@
+from uuid import UUID
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repository.book_repository import BookRepository
-
 
 class BookService:
 
@@ -12,13 +13,13 @@ class BookService:
         self,
         db: AsyncSession,
         limit: int,
-        offset: int
+        cursor: UUID | None = None
     ):
 
         return await self.repository.get_books(
             db,
             limit,
-            offset
+            cursor
         )
 
     async def get_book(

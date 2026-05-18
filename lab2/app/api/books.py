@@ -6,9 +6,10 @@ from fastapi import (
     HTTPException,
     status
 )
-
+from typing import Optional
+from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from fastapi import Query
 from app.core.database import get_db
 
 from app.schemas.book import (
@@ -26,6 +27,8 @@ router = APIRouter(
 
 service = BookService()
 
+limit: int = Query(default=10, le=100)
+cursor: Optional[UUID] = None,
 
 @router.get(
     "/",
@@ -33,16 +36,15 @@ service = BookService()
 )
 async def get_books(
     limit: int = 10,
-    offset: int = 0,
+    cursor: Optional[UUID] = None,
     db: AsyncSession = Depends(get_db)
 ):
 
     return await service.get_books(
         db,
         limit,
-        offset
+        cursor
     )
-
 
 @router.get(
     "/{book_id}",

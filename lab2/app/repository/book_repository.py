@@ -1,27 +1,31 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from uuid import UUID
+from sqlalchemy import select
 from app.models.books_data import Book
 
 
 class BookRepository:
 
     async def get_books(
-        self,
-        db: AsyncSession,
-        limit: int,
-        offset: int
-    ):
+            self,
+            db: AsyncSession,
+            limit: int,
+            cursor: UUID | None = None
+        ):
 
-        query = (
-            select(Book)
-            .limit(limit)
-            .offset(offset)
-        )
+            query = (
+                select(Book)
+                .order_by(Book.id)
+                .limit(limit)
+            )
 
-        result = await db.execute(query)
+            if cursor:
+                query = query.where(Book.id > cursor)
 
-        return result.scalars().all()
+            result = await db.execute(query)
+
+            return result.scalars().all()
 
     async def get_book_by_id(
         self,
