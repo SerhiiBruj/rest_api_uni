@@ -1,0 +1,14 @@
+import os
+
+SECRET_KEY = "supersecretkey"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 7
+
+MONGO_URL = "mongodb://mongo:27017"
+DB_NAME = "library"
+
+RATE_LIMITS = {
+    "anonymous": (2, 60),        
+    "authenticated": (10, 60)   
+}
