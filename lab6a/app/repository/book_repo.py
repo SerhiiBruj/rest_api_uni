@@ -17,6 +17,8 @@ class BookRepository:
             })
 
         return result
+
+    
     async def get_by_id(self, book_id: str):
         book = await books_collection.find_one({"_id": ObjectId(book_id)})
         if not book:

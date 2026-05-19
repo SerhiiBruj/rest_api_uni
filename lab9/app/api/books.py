@@ -11,9 +11,7 @@ from app.core.deps import rate_limited
 @router.get("/books")
 async def get_books(
     skip: int = 0,
-    limit: int = 10,
-    _: None = Depends(rate_limited),
-    user: str = Depends(get_current_user)
+    limit: int = 10
 ):
     return await service.list_books(skip, limit)
 
