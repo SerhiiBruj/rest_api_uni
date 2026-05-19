@@ -1,0 +1,36 @@
+openapi: 3.0.0
+info:
+  title: Library API
+  version: 1.0.0
+
+paths:
+  /books:
+    get:
+      responses:
+        "200":
+          description: List books
+          content:
+            application/json:
+              example:
+                - id: "1"
+                  title: "Clean Code"
+
+    post:
+      responses:
+        "200":
+          description: Create book
+          content:
+            application/json:
+              example:
+                id: "1"
+                title: "New Book"
+
+  /auth/login:
+    post:
+      responses:
+        "200":
+          description: Login
+          content:
+            application/json:
+              example:
+                access_token: "mock-token"

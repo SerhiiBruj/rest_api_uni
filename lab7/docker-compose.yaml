@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  prism:
+    image: stoplight/prism:latest
+    container_name: prism_mock
+    command: >
+      mock
+      -h 0.0.0.0
+      -p 4010
+      /tmp/openapi.yaml
+    ports:
+      - "4010:4010"
+    volumes:
+      - ./openapi.yaml:/tmp/openapi.yaml
