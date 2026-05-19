@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pytest
+httpx
+pytest-asyncio
+sqlalchemy
+asyncpg
+motor
+pydantic
+pydantic-mongo
+flask
+flask-restful
+flasgger
+pymongo
