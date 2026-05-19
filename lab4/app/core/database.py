@@ -1,12 +1,10 @@
-import motor.motor_asyncio
+from pymongo import MongoClient
 
 DATABASE_URL = (
     "mongodb://mongo_admin:password@localhost:27017"
 )
 
-client = motor.motor_asyncio.AsyncIOMotorClient(
-    DATABASE_URL
-)
+client = MongoClient(DATABASE_URL)
 
 database = client.library
 

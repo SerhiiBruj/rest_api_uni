@@ -1,78 +1,141 @@
-from fastapi import (
-    APIRouter,
-    HTTPException,
-    status,
-    Query
-)
+from flask import request
+from flask_restful import Resource
 
-from app.schemas.book import (
-    BookCreate,
-    BookResponse
-)
-
+from app.schemas.book import BookCreate
 from app.services.book_service import BookService
 
-
-router = APIRouter(
-    prefix="/books",
-    tags=["Books"]
-)
 
 service = BookService()
 
 
-@router.get(
-    "/",
-    response_model=list[BookResponse]
-)
-async def get_books(
-    limit: int = Query(default=10, le=100),
-    offset: int = 0
-):
+class BooksResource(Resource):
 
-    return await service.get_books(
-        limit,
-        offset
-    )
+    def get(self):
+        """
+        Get all books
+        ---
+        tags:
+          - Books
 
+        parameters:
+          - name: limit
+            in: query
+            type: integer
+            required: false
 
-@router.get(
-    "/{book_id}",
-    response_model=BookResponse
-)
-async def get_book(book_id: str):
+          - name: offset
+            in: query
+            type: integer
+            required: false
 
-    book = await service.get_book(book_id)
+        responses:
+          200:
+            description: List of books
+        """
 
-    if not book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Book not found"
+        limit = int(request.args.get("limit", 10))
+        offset = int(request.args.get("offset", 0))
+
+        return service.get_books(
+            limit,
+            offset
         )
 
-    return book
+    def post(self):
+        """
+        Create book
+        ---
+        tags:
+          - Books
+
+        parameters:
+          - in: body
+            name: body
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+
+                author:
+                  type: string
+
+                description:
+                  type: string
+
+                status:
+                  type: string
+
+                release_year:
+                  type: integer
+
+        responses:
+          201:
+            description: Book created
+        """
+
+        data = request.get_json()
+
+        book = BookCreate(**data)
+
+        return service.create_book(book), 201
 
 
-@router.post(
-    "/",
-    response_model=BookResponse,
-    status_code=status.HTTP_201_CREATED
-)
-async def create_book(book: BookCreate):
+class BookResource(Resource):
 
-    return await service.create_book(book)
+    def get(self, book_id):
+        """
+        Get book by ID
+        ---
+        tags:
+          - Books
 
+        parameters:
+          - name: book_id
+            in: path
+            type: string
+            required: true
 
-@router.delete(
-    "/{book_id}",
-    status_code=status.HTTP_204_NO_CONTENT
-)
-async def delete_book(book_id: str):
+        responses:
+          200:
+            description: Book found
 
-    deleted = await service.delete_book(book_id)
+          404:
+            description: Book not found
+        """
 
-    if not deleted:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Book not found"
-        )
+        book = service.get_book_sync(book_id)
+
+        if not book:
+            return {
+                "message": "Book not found"
+            }, 404
+
+        return book
+
+    def delete(self, book_id):
+        """
+        Delete book
+        ---
+        tags:
+          - Books
+
+        parameters:
+          - name: book_id
+            in: path
+            type: string
+            required: true
+
+        responses:
+          204:
+            description: Book deleted
+        """
+
+        deleted = service.delete_book_sync(book_id)
+
+        if not deleted:
+            return {
+                "message": "Book not found"
+            }, 404
+
+        return "", 204

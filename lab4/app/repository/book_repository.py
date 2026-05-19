@@ -5,7 +5,7 @@ from app.core.database import books_collection
 
 class BookRepository:
 
-    async def get_books(
+    def get_books(
         self,
         limit: int,
         offset: int
@@ -20,51 +20,59 @@ class BookRepository:
 
         books = []
 
-        async for book in cursor:
-            book["id"] = book["_id"]
+        for book in cursor:
+
+            book["id"] = str(book["_id"])
+
+            del book["_id"]
+
             books.append(book)
 
         return books
 
-    async def get_book_by_id(
+    def get_book_by_id(
         self,
         book_id: str
     ):
 
-        book = await books_collection.find_one({
+        book = books_collection.find_one({
             "_id": PydanticObjectId(book_id)
         })
 
         if not book:
             return None
 
-        book["id"] = book["_id"]
+        book["id"] = str(book["_id"])
+
+        del book["_id"]
 
         return book
 
-    async def create_book(
+    def create_book(
         self,
         book_data
     ):
 
         data = book_data.model_dump()
 
-        result = await books_collection.insert_one(data)
+        result = books_collection.insert_one(data)
 
-        created_book = await books_collection.find_one({
+        created_book = books_collection.find_one({
             "_id": result.inserted_id
         })
 
-        created_book["id"] = created_book["_id"]
+        created_book["id"] = str(created_book["_id"])
+
+        del created_book["_id"]
 
         return created_book
 
-    async def delete_book(
+    def delete_book(
         self,
         book_id: str
     ):
 
-        response = await books_collection.delete_one({
+        response = books_collection.delete_one({
             "_id": PydanticObjectId(book_id)
         })
 

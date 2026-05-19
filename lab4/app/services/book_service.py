@@ -6,40 +6,40 @@ class BookService:
     def __init__(self):
         self.repository = BookRepository()
 
-    async def get_books(
+    def get_books(
         self,
-        limit: int,
-        offset: int
+        limit,
+        offset
     ):
 
-        return await self.repository.get_books(
+        return self.repository.get_books(
             limit,
             offset
         )
 
-    async def get_book(
+    def get_book(
         self,
-        book_id: str
+        book_id
     ):
 
-        return await self.repository.get_book_by_id(
+        return self.repository.get_book_by_id(
             book_id
         )
 
-    async def create_book(
+    def create_book(
         self,
         book_data
     ):
 
-        return await self.repository.create_book(
+        return self.repository.create_book(
             book_data
         )
 
-    async def delete_book(
+    def delete_book(
         self,
-        book_id: str
+        book_id
     ):
 
-        return await self.repository.delete_book(
+        return self.repository.delete_book(
             book_id
         )
